@@ -4,63 +4,61 @@ package com.digicore.challenge.controller;/*
 
 import com.digicore.challenge.model.dto.*;
 import com.digicore.challenge.model.entity.Account;
+import com.digicore.challenge.model.entity.Transactions;
 import com.digicore.challenge.model.repository.AccountDAO;
+import com.digicore.challenge.model.service.AccountService;
+import com.digicore.challenge.model.service.TransactionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
-@RestController("/api/account")
+@RestController
+@RequestMapping("/api/account")
 public class AccountController {
 
-    private AccountDAO accountDAO;
+    private AccountService accountService = new AccountService();
+
+    private TransactionService transactionService;
 
     @PostMapping("/create_account")
     public ResponseEntity<?> createAccount(@RequestBody CreateAccountDTO dto){
-        String accountPassword = dto.getAccountPassword();
-        String accountName = dto.getAccountName();
-
-        if(accountName.isBlank()) throw new IllegalArgumentException("account name can not be blank");
-        if(accountPassword.isBlank()) throw new IllegalArgumentException("account password can not be blank");
-
-        Account account = new Account(accountName,accountPassword);
-        accountDAO.save(account);
-
-        return new ResponseEntity<>(new AccountResponse(200,true,"Account Created Successfully"), HttpStatus.OK);
 
 
+        Account account = accountService.createAccount(dto);
+        return new ResponseEntity<>(new AccountResponse(200,true,String.format("Account Created Successfully. Your account number is %s", account.getAccountNumber())), HttpStatus.OK);
     }
 
     @PostMapping("/deposit")
     public ResponseEntity<?> deposit(@RequestBody DepositDTO dto){
-        String accountNumber = dto.getAccountNumber();
-        Double amount = dto.getAmount();
-        if(accountNumber.isBlank()) throw new IllegalArgumentException("Account name can not be blank");
-        if(amount < 1 || amount > 1000000) throw new IllegalArgumentException("Invalid Amount");
 
-        Account account = accountDAO.findByAccountNumber(accountNumber).orElseThrow(() -> new NoSuchElementException("Invalid Account number"));
-        account.deposit(amount);
-        accountDAO.save(account);
+        Account account = accountService.deposit(dto);
+        return new ResponseEntity<>(new AccountResponse(200,true,String.format("Deposit Successful. New Account balance is %s ", account.getBalance())), HttpStatus.OK);
+    }
 
-        return new ResponseEntity<>(new AccountResponse(200,true,"Deposit Successful"), HttpStatus.OK);
-//        return new ResponseEntity<>(new AccountResponse(500,true,"There was an Issue "), HttpStatus.INTERNAL_SERVER_ERROR);
+
+    @PostMapping("/withdraw")
+    public ResponseEntity<?> withdraw(@RequestBody WithdrawDTO dto){
+        Account account = accountService.withdraw(dto);
+        return new ResponseEntity<>(new AccountResponse(200,true,String.format("Withdraw Successful, New Account Balance is %s",account.getBalance())), HttpStatus.OK);
     }
 
     @PostMapping("/account_info")
     public ResponseEntity<?> accountInfo(@RequestBody RequestDto dto){
-        String accountNumber = dto.getAccountNumber();
-        String accountPassword = dto.getAccountPassword();
-
-
-        if(accountNumber.isBlank()) throw new IllegalArgumentException("account number can not be blank");
-        if(accountPassword.isBlank()) throw new IllegalArgumentException("account password can not be blank");
-
-        Account account = accountDAO.findByAccountNumber(accountNumber).orElseThrow(() -> new NoSuchElementException("Invalid Account number"));
-
-        return new ResponseEntity<>(new AccountInfoDTO(200,true,"See Objcet for details",account), HttpStatus.OK);
+        Account account = accountService.accountInfo(dto);
+        return new ResponseEntity<>(new AccountInfoDTO(200,true,"See Object for details",account), HttpStatus.OK);
 
     }
+
+    @PostMapping("/account_statement")
+    public ResponseEntity<?> accountStatus(@RequestBody RequestDto dto){
+        List<Transactions> transactionsList = transactionService.findAll();
+        return new ResponseEntity<>(transactionsList, HttpStatus.OK);
+    }
+
 }
