@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.digicore.challenge.model.repository.AccountDAO.nameExists;
+
 @Slf4j
 @Data
 public class Account {
@@ -36,16 +38,23 @@ public class Account {
 
     }
 
-    public double deposit(double amount){
-        if (amount < 1) throw new IllegalArgumentException("Invalid Amount");
-        return getBalance() + amount;
+    public boolean deposit(double amount){
+//        if (amount < 1 || amount > 1000000) throw new IllegalArgumentException("deposit amount should be in the range of 1 to 1 000 000");
+        setBalance(getBalance() + amount);
+        return true;
+    }
+
+    public boolean withdraw(double amount){
+        setBalance(getBalance() - amount);
+        return true;
     }
 
 
     public void setAccountName(String accountName) {
-//        if (nameExists(accountName))
-            this.accountName = accountName;
-//        else throw new IllegalArgumentException("Name Already exists");
+        if (nameExists(accountName))
+            throw new IllegalArgumentException("Account Name Already Exists");
+        this.accountName = accountName;
+
     }
 
     String generateAccountNumber() {
@@ -66,37 +75,11 @@ public class Account {
 
     }
 
-//    boolean nameExists(String name) {
-//        {
-//            for (String key : accounts.keySet())
-//                if (accounts.get(key).getAccountName().equals(name))
-//                    return true;
-//        }
-//
-//        return false;
-//    }
 
-//    public boolean persistAccountDetails(Account account) {
-//
-//        accounts.put(account.getAccountNumber(), account);
-//        log.info("Account created");
-//        return true;
-//    }
+
 
     public static void main(String[] args) {
-        Account a = new Account("Bashir","password");
 
-        Account a2 = new Account("onuche","password");
-//        Account a3 = new Account("ibrahim","password");
-//        Account a4 = new Account("okala","password");
-//        a.persistAccountDetails(a);
-//        a2.persistAccountDetails(a2);
-//        a3.persistAccountDetails(a3);
-//        a4.persistAccountDetails(a4);
-
-
-//        for (String key : accounts.keySet())
-//            System.out.println(key);
     }
 
 

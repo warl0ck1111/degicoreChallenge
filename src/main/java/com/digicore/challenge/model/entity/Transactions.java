@@ -3,11 +3,11 @@ package com.digicore.challenge.model.entity;/*
  */
 
 import com.digicore.challenge.model.repository.AccountDAO;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.Date;
 import java.util.UUID;
-
 @Data
 public class Transactions {
     private String id;
@@ -21,12 +21,13 @@ public class Transactions {
         id =  generateTransactionId();
     }
 
-    public Transactions( String transactionType, String narration, Double amount) {
+    public Transactions( String transactionType, String narration, Double amount, Double accountBalance) {
         id =  generateTransactionId();
         this.transactionDate = new Date();
         this.transactionType = transactionType;
         this.narration = narration;
         this.amount = amount;
+        this.accountBalance = accountBalance;
     }
 
     String generateTransactionId() {
