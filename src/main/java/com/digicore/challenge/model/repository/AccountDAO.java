@@ -15,21 +15,30 @@ public class AccountDAO {
 
     public static HashMap<String, Account> accounts = new HashMap<>();
 
-    public Optional<Account> findByAccountNumber(String accountNumber) {
+    public static Optional<Account> findByAccountNumber(String accountNumber) {
         return Optional.ofNullable(accounts.get(accountNumber));
     }
 
-    public boolean accountExists(String account){
-        log.debug("Account exists");
+    public static boolean accountExists(String account){
         return accounts.containsKey(account);
     }
 
 
-    public boolean save(Account account) {
+    public static boolean save(Account account) {
         accounts.put(account.getAccountNumber(), account);
-            log.debug("Account created");
+            log.debug("Account Record Saved");
         return true;
     }
 
+    public static boolean nameExists(String accountName){
+        boolean nameExists = false;
+        for (String key : accounts.keySet()){
+            if(accounts.get(key).getAccountName().equalsIgnoreCase(accountName)){
+                nameExists = true;
+                break;
+            }
+        }
+        return nameExists;
+    }
 
 }
