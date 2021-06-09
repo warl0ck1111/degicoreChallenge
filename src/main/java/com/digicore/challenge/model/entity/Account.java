@@ -2,6 +2,7 @@ package com.digicore.challenge.model.entity;/*
  * @author Okala III
  */
 
+import com.digicore.challenge.model.repository.AccountDAO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -58,19 +59,23 @@ public class Account {
     }
 
     String generateAccountNumber() {
-        String s = UUID.randomUUID().toString().replace("-", "");
-        char[] tokens = new char[s.length()];
-        s.getChars(0, s.length(), tokens, 0);
-        StringBuilder accNo = new StringBuilder();
-        for (Character c : tokens) {
-            if (accNo.length() == 10)
-                break;
-            if (Character.isAlphabetic(c))
-                continue;
-            if (Character.isDigit(c))
-                accNo.append(c);
-        }
-        System.out.println(accNo);
+        StringBuilder accNo;
+        char[] tokens;
+        do {
+            String s = UUID.randomUUID().toString().replace("-", "");
+            tokens = new char[s.length()];
+            s.getChars(0, s.length(), tokens, 0);
+            accNo = new StringBuilder();
+            for (Character c : tokens) {
+                if (accNo.length() == 10)
+                    break;
+                if (Character.isAlphabetic(c))
+                    continue;
+                if (Character.isDigit(c))
+                    accNo.append(c);
+            }
+            System.out.println("Generated Acc No:" + accNo);
+        } while (AccountDAO.accountExists(accountNumber));
         return accNo.toString();
 
     }
